@@ -281,6 +281,14 @@
             color: #00ff00;
         }
 
+        #misses {
+            top: 80px;
+            left: 10px;
+            font-size: 1.2em;
+            color: #ff0000;
+            border-color: #ff0000;
+        }
+
         #level {
             top: 10px;
             right: 10px;
@@ -443,19 +451,27 @@
             color: #fff;
             text-shadow: 0 0 20px #000;
             display: none;
-            z-index: 100;
+            z-index: 1000;
             padding: 20px 40px;
             background: rgba(0, 0, 0, 0.9);
             border: 3px solid #00ffff;
             border-radius: 20px;
             backdrop-filter: blur(10px);
-            animation: notificationPulse 0.5s ease-in-out;
+            text-align: center;
         }
 
-        @keyframes notificationPulse {
-            0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
-            50% { transform: translate(-50%, -50%) scale(1.1); }
-            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        .floating-text {
+            position: fixed;
+            pointer-events: none;
+            font-weight: bold;
+            font-size: 1.5em;
+            z-index: 500;
+            animation: floatUp 1s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-100px); opacity: 0; }
         }
 
         #pauseMenu {
@@ -483,81 +499,36 @@
         .hidden {
             display: none !important;
         }
-
-        @media (max-width: 768px) {
-            .controls-info {
-                font-size: 0.9em;
-                padding: 15px;
-            }
-
-            .controls-grid {
-                grid-template-columns: 1fr;
-                gap: 8px;
-            }
-
-            #mainMenu h1 {
-                font-size: 2.5em;
-            }
-
-            .menu-button {
-                padding: 12px 30px;
-                font-size: 1.2em;
-            }
-        }
     </style>
 </head>
-<body data-rotate-msg="🔄 Пожалуйста, поверните устройство горизонтально / Please rotate your device to landscape">
+<body data-rotate-msg="🔄 Пожалуйста, поверните устройство горизонтально">
     <canvas id="gameCanvas"></canvas>
     
     <div id="mainMenu">
         <div id="menuBackground"></div>
-        
         <button id="languageToggle" onclick="toggleLanguage()">🌐 EN</button>
-        
         <div id="menuContent">
             <h1 id="gameTitle">ТРЕНАЖЁР СТРЕЛЬБЫ</h1>
-            
             <div class="controls-info">
                 <h3 id="controlsTitle">🎮 Управление</h3>
                 <div class="controls-grid">
-                    <div class="control-item">
-                        <span class="control-key" data-lang-ru="Мышь" data-lang-en="Mouse">Мышь</span>
-                        <span data-lang-ru="- Прицеливание" data-lang-en="- Aiming">- Прицеливание</span>
-                    </div>
-                    <div class="control-item">
-                        <span class="control-key">LMB</span>
-                        <span data-lang-ru="- Выстрел" data-lang-en="- Shoot">- Выстрел</span>
-                    </div>
-                    <div class="control-item">
-                        <span class="control-key">A / D</span>
-                        <span data-lang-ru="- Влево/Вправо" data-lang-en="- Left/Right">- Влево/Вправо</span>
-                    </div>
-                    <div class="control-item">
-                        <span class="control-key">R</span>
-                        <span data-lang-ru="- Перезарядка" data-lang-en="- Reload">- Перезарядка</span>
-                    </div>
-                    <div class="control-item">
-                        <span class="control-key">1 / 2 / 3</span>
-                        <span data-lang-ru="- Смена оружия" data-lang-en="- Change weapon">- Смена оружия</span>
-                    </div>
-                    <div class="control-item">
-                        <span class="control-key">ESC</span>
-                        <span data-lang-ru="- Пауза" data-lang-en="- Pause">- Пауза</span>
-                    </div>
+                    <div class="control-item"><span class="control-key">Мышь</span>- Прицеливание</div>
+                    <div class="control-item"><span class="control-key">LMB</span>- Выстрел</div>
+                    <div class="control-item"><span class="control-key">A / D</span>- Влево/Вправо</div>
+                    <div class="control-item"><span class="control-key">R</span>- Перезарядка</div>
                 </div>
             </div>
-            
-            <button class="menu-button" id="playButton" onclick="window.gameController.startGame()">▶ <span data-lang-ru="ИГРАТЬ" data-lang-en="PLAY">ИГРАТЬ</span></button>
-            <button class="menu-button" id="continueButton" onclick="window.gameController.continueGame()">⏩ <span data-lang-ru="ПРОДОЛЖИТЬ" data-lang-en="CONTINUE">ПРОДОЛЖИТЬ</span></button>
+            <button class="menu-button" onclick="window.gameController.startGame()">▶ <span data-lang-ru="ИГРАТЬ" data-lang-en="PLAY">ИГРАТЬ</span></button>
             <button class="menu-button" onclick="window.gameController.showRecords()">🏆 <span data-lang-ru="РЕКОРДЫ" data-lang-en="RECORDS">РЕКОРДЫ</span></button>
         </div>
     </div>
 
     <div id="hud">
-        <div id="score" class="hud-element"><span data-lang-ru="Очки:" data-lang-en="Score:">Очки:</span> <span id="scoreValue">0</span></div>
-        <div id="level" class="hud-element"><span data-lang-ru="Уровень:" data-lang-en="Level:">Уровень:</span> <span id="levelValue">1</span></div>
-        <div id="ammo" class="hud-element"><span data-lang-ru="Патроны:" data-lang-en="Ammo:">Патроны:</span> <span id="ammoValue">10</span>/<span id="ammoMax">10</span></div>
-        <div id="weapon" class="hud-element"><span data-lang-ru="Оружие:" data-lang-en="Weapon:">Оружие:</span> <span id="weaponName">Пистолет</span></div>
+        <div id="score" class="hud-element">Очки: <span id="scoreValue">0</span></div>
+        <div id="misses" class="hud-element">Промахи: <span id="missValue">0</span>/5</div>
+        <div id="level" class="hud-element">Уровень: <span id="levelValue">1</span></div>
+        <div id="ammo" class="hud-element">Патроны: <span id="ammoValue">10</span>/<span id="ammoMax">10</span></div>
+        <div id="weapon" class="hud-element">Оружие: <span id="weaponName">Пистолет</span></div>
         <div id="crosshair"></div>
     </div>
 
@@ -576,9 +547,9 @@
     <div id="notification"></div>
 
     <div id="pauseMenu">
-        <h2>⏸ <span data-lang-ru="ПАУЗА" data-lang-en="PAUSE">ПАУЗА</span></h2>
-        <button class="menu-button" onclick="window.gameController.resumeGame()">▶ <span data-lang-ru="ПРОДОЛЖИТЬ" data-lang-en="CONTINUE">ПРОДОЛЖИТЬ</span></button>
-        <button class="menu-button" onclick="window.gameController.backToMenu()">🏠 <span data-lang-ru="В МЕНЮ" data-lang-en="MAIN MENU">В МЕНЮ</span></button>
+        <h2>⏸ ПАУЗА</h2>
+        <button class="menu-button" onclick="window.gameController.resumeGame()">▶ ПРОДОЛЖИТЬ</button>
+        <button class="menu-button" onclick="window.gameController.backToMenu()">🏠 В МЕНЮ</button>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -591,7 +562,6 @@
                 particle.className = 'menu-particle';
                 particle.style.left = Math.random() * 100 + '%';
                 particle.style.animationDelay = Math.random() * 10 + 's';
-                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
                 menuBg.appendChild(particle);
             }
         }
@@ -599,27 +569,8 @@
         let currentLang = 'ru';
         function toggleLanguage() {
             currentLang = currentLang === 'ru' ? 'en' : 'ru';
-            const langToggle = document.getElementById('languageToggle');
-            langToggle.textContent = currentLang === 'ru' ? '🌐 EN' : '🌐 RU';
-            
-            document.querySelectorAll('[data-lang-ru]').forEach(el => {
-                el.textContent = el.getAttribute('data-lang-' + currentLang);
-            });
-            
-            document.getElementById('gameTitle').textContent = 
-                currentLang === 'ru' ? 'ТРЕНАЖЁР СТРЕЛЬБЫ' : 'SHOOTING SIMULATOR';
-            document.getElementById('controlsTitle').textContent = 
-                currentLang === 'ru' ? '🎮 Управление' : '🎮 Controls';
-            
-            document.body.setAttribute('data-rotate-msg', 
-                currentLang === 'ru' 
-                    ? '🔄 Пожалуйста, поверните устройство горизонтально' 
-                    : '🔄 Please rotate your device to landscape'
-            );
-            
-            if (window.gameController) {
-                window.gameController.updateLanguage(currentLang);
-            }
+            document.getElementById('languageToggle').textContent = currentLang === 'ru' ? '🌐 EN' : '🌐 RU';
+            if (window.gameController) window.gameController.updateLanguage(currentLang);
         }
         
         window.addEventListener('load', createMenuParticles);
