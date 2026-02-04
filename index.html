@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>3D FPS Shooting Simulator | Тренажёр Стрельбы</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            background: #000;
+            touch-action: none;
+        }
+
+        @media screen and (orientation: portrait) and (max-width: 768px) {
+            body::before {
+                content: attr(data-rotate-msg);
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: #000;
+                color: #fff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.5em;
+                text-align: center;
+                z-index: 10000;
+                padding: 20px;
+            }
+        }
+
+        #gameCanvas {
+            display: block;
+            width: 100%;
+            height: 100vh;
+            touch-action: none;
+        }
+
+        /* Анимированный фон главного меню */
+        #mainMenu {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a0033 50%, #000033 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        /* Анимированный фон с частицами */
+        #menuBackground {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(255, 0, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 50% 20%, rgba(0, 255, 0, 0.05) 0%, transparent 50%);
+            animation: backgroundPulse 8s ease-in-out infinite;
+        }
+
+        @keyframes backgroundPulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+
+        .menu-particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: #00ffff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #00ffff;
+            animation: particleFloat 10s linear infinite;
+        }
+
+        @keyframes particleFloat {
+            0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100px) translateX(100px); opacity: 0; }
+        }
+
+        #menuContent {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            max-width: 90%;
+        }
+
+        #mainMenu h1 {
+            font-size: clamp(2em, 8vw, 5em);
+            color: #00ffff;
+            text-shadow: 
+                0 0 10px #00ffff,
+                0 0 20px #00ffff,
+                0 0 30px #ff00ff,
+                0 0 40px #ff00ff;
+            margin-bottom: 30px;
+            animation: titleGlow 3s ease-in-out infinite;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { 
+                text-shadow: 
+                    0 0 10px #00ffff,
+                    0 0 20px #00ffff,
+                    0 0 30px #ff00ff;
+            }
+            50% { 
+                text-shadow: 
+                    0 0 20px #00ffff,
+                    0 0 40px #00ffff,
+                    0 0 60px #ff00ff,
+                    0 0 80px #ff00ff;
+                transform: scale(1.05);
+            }
+        }
+
+        #languageToggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: rgba(0, 255, 255, 0.2);
+            border: 2px solid #00ffff;
+            border-radius: 25px;
+            color: #00ffff;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        #languageToggle:hover {
+            background: rgba(0, 255, 255, 0.4);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+            transform: scale(1.1);
+        }
+
+        .controls-info {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #00ffff;
+            border-radius: 15px;
+            padding: 20px 30px;
+            margin: 20px auto;
+            max-width: 600px;
+            backdrop-filter: blur(10px);
+            animation: infoFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes infoFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .controls-info h3 {
+            color: #00ffff;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            text-shadow: 0 0 10px #00ffff;
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            text-align: left;
+            color: #fff;
+            font-size: 0.9em;
+        }
+
+        .control-item {
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border-left: 3px solid #ff00ff;
+        }
+
+        .control-key {
+            color: #00ff00;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .menu-button {
+            padding: 15px 50px;
+            margin: 10px;
+            font-size: clamp(1em, 3vw, 1.5em);
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(45deg, #ff00ff, #00ffff);
+            border: 3px solid #fff;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .menu-button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .menu-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.8), 0 0 60px rgba(255, 0, 255, 0.8);
+            background: linear-gradient(45deg, #00ffff, #ff00ff);
+        }
+
+        .menu-button:active {
+            transform: scale(0.95);
+        }
+
+        /* HUD */
+        #hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: none;
+            color: #fff;
+            font-size: 1.5em;
+            text-shadow: 0 0 10px #000;
+        }
+
+        #hud.active {
+            display: block;
+        }
+
+        .hud-element {
+            position: absolute;
+            padding: 10px 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ffff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        #score {
+            top: 10px;
+            left: 10px;
+            font-size: clamp(1.2em, 4vw, 2em);
+            color: #00ff00;
+        }
+
+        #level {
+            top: 10px;
+            right: 10px;
+            font-size: clamp(1.2em, 4vw, 2em);
+            color: #ffff00;
+        }
+
+        #ammo {
+            bottom: 10px;
+            right: 10px;
+            font-size: clamp(1.5em, 5vw, 2.5em);
+            color: #ff6600;
+        }
+
+        #weapon {
+            bottom: 10px;
+            left: 10px;
+            font-size: clamp(1em, 3vw, 1.8em);
+            color: #ff00ff;
+        }
+
+        #timer {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -200px);
+            font-size: clamp(2em, 6vw, 3em);
+            color: #ff0000;
+        }
+
+        /* Мобильные кнопки управления */
+        #mobileControls {
+            display: none;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            pointer-events: auto;
+            z-index: 50;
+        }
+
+        @media (max-width: 768px), (hover: none) {
+            #mobileControls {
+                display: block;
+            }
+        }
+
+        .mobile-button {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: rgba(0, 255, 255, 0.3);
+            border: 3px solid #00ffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.5em;
+            font-weight: bold;
+            user-select: none;
+            touch-action: none;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .mobile-button:active {
+            background: rgba(0, 255, 255, 0.6);
+            transform: scale(0.9);
+        }
+
+        #moveLeft {
+            bottom: 60px;
+            left: 20px;
+        }
+
+        #moveRight {
+            bottom: 60px;
+            left: 120px;
+        }
+
+        #shootButton {
+            bottom: 60px;
+            right: 20px;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 0, 0, 0.3);
+            border-color: #ff0000;
+        }
+
+        #shootButton:active {
+            background: rgba(255, 0, 0, 0.6);
+        }
+
+        #reloadButton {
+            bottom: 170px;
+            right: 20px;
+            width: 70px;
+            height: 70px;
+            font-size: 1.2em;
+        }
+
+        .weapon-selector {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+        }
+
+        .weapon-btn {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 0, 255, 0.3);
+            border: 2px solid #ff00ff;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1em;
+            font-weight: bold;
+        }
+
+        .weapon-btn.active {
+            background: rgba(255, 0, 255, 0.6);
+            box-shadow: 0 0 15px #ff00ff;
+        }
+
+        /* Прицел */
+        #crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        #crosshair::before,
+        #crosshair::after {
+            content: '';
+            position: absolute;
+            background: #00ff00;
+            box-shadow: 0 0 10px #00ff00;
+        }
+
+        #crosshair::before {
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            transform: translateY(-50%);
+        }
+
+        #crosshair::after {
+            left: 50%;
+            top: 0;
+            width: 3px;
+            height: 100%;
+            transform: translateX(-50%);
+        }
+
+        /* Уведомления */
+        #notification {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: clamp(1.5em, 5vw, 3em);
+            color: #fff;
+            text-shadow: 0 0 20px #000;
+            display: none;
+            z-index: 100;
+            padding: 20px 40px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 3px solid #00ffff;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            animation: notificationPulse 0.5s ease-in-out;
+        }
+
+        @keyframes notificationPulse {
+            0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        /* Пауза */
+        #pauseMenu {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            backdrop-filter: blur(10px);
+        }
+
+        #pauseMenu h2 {
+            font-size: clamp(2em, 6vw, 3em);
+            color: #00ffff;
+            margin-bottom: 40px;
+            text-shadow: 0 0 20px #00ffff;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Адаптивность для мобильных */
+        @media (max-width: 768px) {
+            .controls-info {
+                font-size: 0.9em;
+                padding: 15px;
+            }
+
+            .controls-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            #mainMenu h1 {
+                font-size: 2.5em;
+            }
+
+            .menu-button {
+                padding: 12px 30px;
+                font-size: 1.2em;
+            }
+        }
+
+        /* Анимация загрузки */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0, 255, 255, 0.3);
+            border-top-color: #00ffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+    </style>
+</head>
+<body data-rotate-msg="🔄 Пожалуйста, поверните устройство горизонтально / Please rotate your device to landscape">
+    <canvas id="gameCanvas"></canvas>
+    
+    <!-- Главное меню -->
+    <div id="mainMenu">
+        <div id="menuBackground"></div>
+        
+        <button id="languageToggle" onclick="toggleLanguage()">🌐 EN</button>
+        
+        <div id="menuContent">
+            <h1 id="gameTitle">ТРЕНАЖЁР СТРЕЛЬБЫ</h1>
+            
+            <div class="controls-info">
+                <h3 id="controlsTitle">🎮 Управление</h3>
+                <div class="controls-grid">
+                    <div class="control-item">
+                       
