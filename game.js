@@ -15,7 +15,7 @@ let weapons = {
 
 let currentWeapon = 'pistol';
 let canShoot = true, isReloading = false;
-let targets = [], particles = [], mapObjects = [], interactiveObjects = [];
+let targets = [], particles = [], mapObjects = [];
 const raycaster = new THREE.Raycaster();
 let yaw = 0, pitch = 0, playerX = 0;
 let isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
@@ -82,7 +82,7 @@ function hitTarget(target) {
         spawnFloatingText('+10', '#00ff00');
         createHitEffect(target.position);
         scene.remove(target); targets.splice(targets.indexOf(target), 1);
-        if(gameState.score >= gameState.level*100) gameController.nextLevel();
+        if(gameState.score >= gameState.level * 100) gameController.nextLevel();
     }
     gameController.updateHUD();
 }
@@ -96,12 +96,17 @@ function spawnFloatingText(text, color) {
 }
 
 const gameController = {
+    initStart(btn) {
+        if(!isMobile) {
+            document.body.requestPointerLock();
+        }
+        this.startGame();
+    },
     startGame() {
         document.getElementById('mainMenu').classList.add('hidden');
         document.getElementById('hud').classList.add('active');
         gameState.isPlaying = true; gameState.score = 0; gameState.level = 1; gameState.misses = 0;
         createMap(); this.updateHUD(); this.spawnLoop();
-        if(!isMobile) document.body.requestPointerLock();
     },
     spawnLoop() {
         if(!gameState.isPlaying || gameState.isPaused) return;
@@ -140,7 +145,7 @@ const gameController = {
     },
     showRecords() { alert("Рекорд: " + (localStorage.getItem('fps_score') || 0)); },
     togglePause() { gameState.isPaused = !gameState.isPaused; document.getElementById('pauseMenu').style.display = gameState.isPaused?'flex':'none'; },
-    resumeGame() { this.togglePause(); },
+    resumeGame() { this.togglePause(); if(!isMobile) document.body.requestPointerLock(); },
     backToMenu() { location.reload(); },
     updateLanguage(l) { currentLang = l; this.updateHUD(); }
 };
@@ -154,6 +159,7 @@ function animate() {
             const d = t.userData; d.time += delta;
             if(d.behavior === 'leftRight') t.position.x = d.startPos.x + Math.sin(d.time * d.speed) * 5;
             if(d.behavior === 'upDown') t.position.y = d.startPos.y + Math.sin(d.time * d.speed) * 2;
+            if(d.behavior === 'zigzag') { t.position.x = d.startPos.x + Math.sin(d.time * d.speed) * 4; t.position.y = d.startPos.y + Math.cos(d.time * d.speed) * 2; }
         });
         if(isMobile) {
             if(moveLeftPressed) { playerX -= 0.1; camera.position.x = playerX; }
@@ -167,7 +173,13 @@ function setupEventListeners() {
     window.addEventListener('resize', () => { camera.aspect = window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
     document.addEventListener('mousemove', (e) => { if(!gameState.isPlaying || !document.pointerLockElement || isMobile) return; yaw -= e.movementX*0.002; pitch -= e.movementY*0.002; pitch = Math.max(-Math.PI/2, Math.min(Math.PI/2, pitch)); camera.rotation.order = 'YXZ'; camera.rotation.y = yaw; camera.rotation.x = pitch; });
     document.addEventListener('click', () => { if(gameState.isPlaying && !isMobile && document.pointerLockElement) gameController.shoot(); });
-    document.addEventListener('keydown', (e) => { if(e.key === 'r') gameController.reload(); if(e.key === 'Escape') gameController.togglePause(); });
+    document.addEventListener('keydown', (e) => { 
+        if(!gameState.isPlaying) return;
+        if(e.key.toLowerCase() === 'a') { playerX -= 0.5; camera.position.x = playerX; }
+        if(e.key.toLowerCase() === 'd') { playerX += 0.5; camera.position.x = playerX; }
+        if(e.key.toLowerCase() === 'r') gameController.reload(); 
+        if(e.key === 'Escape') gameController.togglePause(); 
+    });
 }
 
 function setupMobileControls() {
