@@ -106,32 +106,9 @@
         #mainMenu h1 {
             font-size: clamp(2em, 8vw, 5em);
             color: #00ffff;
-            text-shadow: 
-                0 0 10px #00ffff,
-                0 0 20px #00ffff,
-                0 0 30px #ff00ff,
-                0 0 40px #ff00ff;
+            text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #ff00ff;
             margin-bottom: 30px;
-            animation: titleGlow 3s ease-in-out infinite;
-            letter-spacing: 3px;
             text-transform: uppercase;
-        }
-
-        @keyframes titleGlow {
-            0%, 100% { 
-                text-shadow: 
-                    0 0 10px #00ffff,
-                    0 0 20px #00ffff,
-                    0 0 30px #ff00ff;
-            }
-            50% { 
-                text-shadow: 
-                    0 0 20px #00ffff,
-                    0 0 40px #00ffff,
-                    0 0 60px #ff00ff,
-                    0 0 80px #ff00ff;
-                transform: scale(1.05);
-            }
         }
 
         #languageToggle {
@@ -144,17 +121,7 @@
             border-radius: 25px;
             color: #00ffff;
             cursor: pointer;
-            font-size: 1em;
-            font-weight: bold;
-            transition: all 0.3s;
             z-index: 100;
-            backdrop-filter: blur(10px);
-        }
-
-        #languageToggle:hover {
-            background: rgba(0, 255, 255, 0.4);
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
-            transform: scale(1.1);
         }
 
         .controls-info {
@@ -164,87 +131,19 @@
             padding: 20px 30px;
             margin: 20px auto;
             max-width: 600px;
-            backdrop-filter: blur(10px);
-            animation: infoFloat 3s ease-in-out infinite;
-        }
-
-        @keyframes infoFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .controls-info h3 {
-            color: #00ffff;
-            margin-bottom: 15px;
-            font-size: 1.5em;
-            text-shadow: 0 0 10px #00ffff;
-        }
-
-        .controls-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 10px;
-            text-align: left;
             color: #fff;
-            font-size: 0.9em;
-        }
-
-        .control-item {
-            padding: 8px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            border-left: 3px solid #ff00ff;
-        }
-
-        .control-key {
-            color: #00ff00;
-            font-weight: bold;
-            margin-right: 8px;
         }
 
         .menu-button {
             padding: 15px 50px;
             margin: 10px;
-            font-size: clamp(1em, 3vw, 1.5em);
+            font-size: 1.5em;
             font-weight: bold;
             color: #fff;
             background: linear-gradient(45deg, #ff00ff, #00ffff);
             border: 3px solid #fff;
             border-radius: 15px;
             cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
-            text-transform: uppercase;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .menu-button::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .menu-button:hover::before {
-            width: 300px;
-            height: 300px;
-        }
-
-        .menu-button:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 40px rgba(0, 255, 255, 0.8), 0 0 60px rgba(255, 0, 255, 0.8);
-            background: linear-gradient(45deg, #00ffff, #ff00ff);
-        }
-
-        .menu-button:active {
-            transform: scale(0.95);
         }
 
         #hud {
@@ -256,13 +155,10 @@
             pointer-events: none;
             display: none;
             color: #fff;
-            font-size: 1.5em;
             text-shadow: 0 0 10px #000;
         }
 
-        #hud.active {
-            display: block;
-        }
+        #hud.active { display: block; }
 
         .hud-element {
             position: absolute;
@@ -270,44 +166,26 @@
             background: rgba(0, 0, 0, 0.8);
             border: 2px solid #00ffff;
             border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
-            backdrop-filter: blur(5px);
         }
 
-        #score {
-            top: 10px;
-            left: 10px;
-            font-size: clamp(1.2em, 4vw, 2em);
-            color: #00ff00;
+        #score { top: 10px; left: 10px; color: #00ff00; }
+        #misses { top: 80px; left: 10px; color: #ff0000; border-color: #ff0000; }
+        #level { top: 10px; right: 10px; color: #ffff00; }
+        #ammo { bottom: 10px; right: 10px; color: #ff6600; font-size: 1.5em; }
+        #weapon { bottom: 10px; left: 10px; color: #ff00ff; }
+
+        .floating-text {
+            position: fixed;
+            pointer-events: none;
+            font-weight: bold;
+            font-size: 2em;
+            z-index: 500;
+            animation: floatUp 1s ease-out forwards;
         }
 
-        #misses {
-            top: 80px;
-            left: 10px;
-            font-size: 1.2em;
-            color: #ff0000;
-            border-color: #ff0000;
-        }
-
-        #level {
-            top: 10px;
-            right: 10px;
-            font-size: clamp(1.2em, 4vw, 2em);
-            color: #ffff00;
-        }
-
-        #ammo {
-            bottom: 10px;
-            right: 10px;
-            font-size: clamp(1.5em, 5vw, 2.5em);
-            color: #ff6600;
-        }
-
-        #weapon {
-            bottom: 10px;
-            left: 10px;
-            font-size: clamp(1em, 3vw, 1.8em);
-            color: #ff00ff;
+        @keyframes floatUp {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-100px); opacity: 0; }
         }
 
         #mobileControls {
@@ -317,15 +195,10 @@
             left: 0;
             width: 100%;
             height: 200px;
-            pointer-events: auto;
             z-index: 50;
         }
 
-        @media (max-width: 768px), (hover: none) {
-            #mobileControls {
-                display: block;
-            }
-        }
+        @media (max-width: 768px), (hover: none) { #mobileControls { display: block; } }
 
         .mobile-button {
             position: absolute;
@@ -339,73 +212,12 @@
             justify-content: center;
             color: #fff;
             font-size: 1.5em;
-            font-weight: bold;
-            user-select: none;
-            touch-action: none;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
-            backdrop-filter: blur(10px);
         }
 
-        .mobile-button:active {
-            background: rgba(0, 255, 255, 0.6);
-            transform: scale(0.9);
-        }
-
-        #moveLeft {
-            bottom: 60px;
-            left: 20px;
-        }
-
-        #moveRight {
-            bottom: 60px;
-            left: 120px;
-        }
-
-        #shootButton {
-            bottom: 60px;
-            right: 20px;
-            width: 100px;
-            height: 100px;
-            background: rgba(255, 0, 0, 0.3);
-            border-color: #ff0000;
-        }
-
-        #shootButton:active {
-            background: rgba(255, 0, 0, 0.6);
-        }
-
-        #reloadButton {
-            bottom: 170px;
-            right: 20px;
-            width: 70px;
-            height: 70px;
-            font-size: 1.2em;
-        }
-
-        .weapon-selector {
-            position: absolute;
-            bottom: 60px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 10px;
-        }
-
-        .weapon-btn {
-            width: 60px;
-            height: 60px;
-            background: rgba(255, 0, 255, 0.3);
-            border: 2px solid #ff00ff;
-            border-radius: 10px;
-            color: #fff;
-            font-size: 1em;
-            font-weight: bold;
-        }
-
-        .weapon-btn.active {
-            background: rgba(255, 0, 255, 0.6);
-            box-shadow: 0 0 15px #ff00ff;
-        }
+        #moveLeft { bottom: 60px; left: 20px; }
+        #moveRight { bottom: 60px; left: 120px; }
+        #shootButton { bottom: 60px; right: 20px; width: 100px; height: 100px; border-color: #ff0000; }
+        #reloadButton { bottom: 170px; right: 20px; width: 70px; height: 70px; }
 
         #crosshair {
             position: absolute;
@@ -414,90 +226,42 @@
             transform: translate(-50%, -50%);
             width: 40px;
             height: 40px;
-            pointer-events: none;
-            z-index: 100;
         }
 
-        #crosshair::before,
-        #crosshair::after {
+        #crosshair::before, #crosshair::after {
             content: '';
             position: absolute;
             background: #00ff00;
-            box-shadow: 0 0 10px #00ff00;
         }
 
-        #crosshair::before {
-            top: 50%;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            transform: translateY(-50%);
-        }
-
-        #crosshair::after {
-            left: 50%;
-            top: 0;
-            width: 3px;
-            height: 100%;
-            transform: translateX(-50%);
-        }
+        #crosshair::before { top: 50%; left: 0; width: 100%; height: 3px; transform: translateY(-50%); }
+        #crosshair::after { left: 50%; top: 0; width: 3px; height: 100%; transform: translateX(-50%); }
 
         #notification {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: clamp(1.5em, 5vw, 3em);
+            font-size: 3em;
             color: #fff;
-            text-shadow: 0 0 20px #000;
             display: none;
             z-index: 1000;
             padding: 20px 40px;
             background: rgba(0, 0, 0, 0.9);
             border: 3px solid #00ffff;
             border-radius: 20px;
-            backdrop-filter: blur(10px);
             text-align: center;
-        }
-
-        .floating-text {
-            position: fixed;
-            pointer-events: none;
-            font-weight: bold;
-            font-size: 1.5em;
-            z-index: 500;
-            animation: floatUp 1s ease-out forwards;
-        }
-
-        @keyframes floatUp {
-            0% { transform: translateY(0); opacity: 1; }
-            100% { transform: translateY(-100px); opacity: 0; }
         }
 
         #pauseMenu {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.95);
             display: none;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 999;
-            backdrop-filter: blur(10px);
-        }
-
-        #pauseMenu h2 {
-            font-size: clamp(2em, 6vw, 3em);
-            color: #00ffff;
-            margin-bottom: 40px;
-            text-shadow: 0 0 20px #00ffff;
-        }
-
-        .hidden {
-            display: none !important;
         }
     </style>
 </head>
@@ -511,15 +275,12 @@
             <h1 id="gameTitle">ТРЕНАЖЁР СТРЕЛЬБЫ</h1>
             <div class="controls-info">
                 <h3 id="controlsTitle">🎮 Управление</h3>
-                <div class="controls-grid">
-                    <div class="control-item"><span class="control-key">Мышь</span>- Прицеливание</div>
-                    <div class="control-item"><span class="control-key">LMB</span>- Выстрел</div>
-                    <div class="control-item"><span class="control-key">A / D</span>- Влево/Вправо</div>
-                    <div class="control-item"><span class="control-key">R</span>- Перезарядка</div>
-                </div>
+                <p>Мышь / Touch - Прицел</p>
+                <p>LMB / Кнопка - Огонь</p>
+                <p>A / D - Движение</p>
             </div>
-            <button class="menu-button" onclick="window.gameController.startGame()">▶ <span data-lang-ru="ИГРАТЬ" data-lang-en="PLAY">ИГРАТЬ</span></button>
-            <button class="menu-button" onclick="window.gameController.showRecords()">🏆 <span data-lang-ru="РЕКОРДЫ" data-lang-en="RECORDS">РЕКОРДЫ</span></button>
+            <button class="menu-button" onclick="window.gameController.startGame()">▶ ИГРАТЬ</button>
+            <button class="menu-button" onclick="window.gameController.showRecords()">🏆 РЕКОРДЫ</button>
         </div>
     </div>
 
@@ -537,11 +298,6 @@
         <div class="mobile-button" id="moveRight">▶</div>
         <div class="mobile-button" id="shootButton">🔫</div>
         <div class="mobile-button" id="reloadButton">🔄</div>
-        <div class="weapon-selector">
-            <button class="weapon-btn active" data-weapon="pistol">1</button>
-            <button class="weapon-btn" data-weapon="rifle">2</button>
-            <button class="weapon-btn" data-weapon="sniper">3</button>
-        </div>
     </div>
 
     <div id="notification"></div>
@@ -565,14 +321,10 @@
                 menuBg.appendChild(particle);
             }
         }
-        
-        let currentLang = 'ru';
         function toggleLanguage() {
             currentLang = currentLang === 'ru' ? 'en' : 'ru';
-            document.getElementById('languageToggle').textContent = currentLang === 'ru' ? '🌐 EN' : '🌐 RU';
             if (window.gameController) window.gameController.updateLanguage(currentLang);
         }
-        
         window.addEventListener('load', createMenuParticles);
     </script>
 </body>
