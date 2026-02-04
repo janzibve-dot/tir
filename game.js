@@ -96,12 +96,6 @@ function spawnFloatingText(text, color) {
 }
 
 const gameController = {
-    initStart(btn) {
-        if(!isMobile) {
-            document.body.requestPointerLock();
-        }
-        this.startGame();
-    },
     startGame() {
         document.getElementById('mainMenu').classList.add('hidden');
         document.getElementById('hud').classList.add('active');
@@ -144,8 +138,12 @@ const gameController = {
         document.getElementById('ammoMax').textContent = weapons[currentWeapon].maxAmmo;
     },
     showRecords() { alert("Рекорд: " + (localStorage.getItem('fps_score') || 0)); },
-    togglePause() { gameState.isPaused = !gameState.isPaused; document.getElementById('pauseMenu').style.display = gameState.isPaused?'flex':'none'; },
-    resumeGame() { this.togglePause(); if(!isMobile) document.body.requestPointerLock(); },
+    togglePause() { 
+        gameState.isPaused = !gameState.isPaused; 
+        document.getElementById('pauseMenu').style.display = gameState.isPaused?'flex':'none'; 
+        if (!gameState.isPaused && !isMobile) document.body.requestPointerLock();
+    },
+    resumeGame() { this.togglePause(); },
     backToMenu() { location.reload(); },
     updateLanguage(l) { currentLang = l; this.updateHUD(); }
 };
@@ -171,8 +169,25 @@ function animate() {
 
 function setupEventListeners() {
     window.addEventListener('resize', () => { camera.aspect = window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
-    document.addEventListener('mousemove', (e) => { if(!gameState.isPlaying || !document.pointerLockElement || isMobile) return; yaw -= e.movementX*0.002; pitch -= e.movementY*0.002; pitch = Math.max(-Math.PI/2, Math.min(Math.PI/2, pitch)); camera.rotation.order = 'YXZ'; camera.rotation.y = yaw; camera.rotation.x = pitch; });
-    document.addEventListener('click', () => { if(gameState.isPlaying && !isMobile && document.pointerLockElement) gameController.shoot(); });
+    
+    document.addEventListener('mousemove', (e) => { 
+        if(!gameState.isPlaying || !document.pointerLockElement || isMobile) return; 
+        yaw -= e.movementX*0.002; 
+        pitch -= e.movementY*0.002; 
+        pitch = Math.max(-Math.PI/2, Math.min(Math.PI/2, pitch)); 
+        camera.rotation.order = 'YXZ'; 
+        camera.rotation.y = yaw; 
+        camera.rotation.x = pitch; 
+    });
+
+    document.addEventListener('mousedown', () => { 
+        if(gameState.isPlaying && !isMobile && !document.pointerLockElement && !gameState.isPaused) {
+            document.body.requestPointerLock();
+        } else if (gameState.isPlaying && !isMobile && document.pointerLockElement) {
+            gameController.shoot();
+        }
+    });
+
     document.addEventListener('keydown', (e) => { 
         if(!gameState.isPlaying) return;
         if(e.key.toLowerCase() === 'a') { playerX -= 0.5; camera.position.x = playerX; }
