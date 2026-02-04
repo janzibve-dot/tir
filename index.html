@@ -46,7 +46,6 @@
             touch-action: none;
         }
 
-        /* Анимированный фон главного меню */
         #mainMenu {
             position: absolute;
             top: 0;
@@ -62,7 +61,6 @@
             overflow: hidden;
         }
 
-        /* Анимированный фон с частицами */
         #menuBackground {
             position: absolute;
             top: 0;
@@ -249,7 +247,6 @@
             transform: scale(0.95);
         }
 
-        /* HUD */
         #hud {
             position: absolute;
             top: 0;
@@ -305,15 +302,6 @@
             color: #ff00ff;
         }
 
-        #timer {
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -200px);
-            font-size: clamp(2em, 6vw, 3em);
-            color: #ff0000;
-        }
-
-        /* Мобильные кнопки управления */
         #mobileControls {
             display: none;
             position: absolute;
@@ -411,7 +399,6 @@
             box-shadow: 0 0 15px #ff00ff;
         }
 
-        /* Прицел */
         #crosshair {
             position: absolute;
             top: 50%;
@@ -447,7 +434,6 @@
             transform: translateX(-50%);
         }
 
-        /* Уведомления */
         #notification {
             position: absolute;
             top: 50%;
@@ -472,7 +458,6 @@
             100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
         }
 
-        /* Пауза */
         #pauseMenu {
             position: absolute;
             top: 0;
@@ -499,7 +484,6 @@
             display: none !important;
         }
 
-        /* Адаптивность для мобильных */
         @media (max-width: 768px) {
             .controls-info {
                 font-size: 0.9em;
@@ -520,28 +504,11 @@
                 font-size: 1.2em;
             }
         }
-
-        /* Анимация загрузки */
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(0, 255, 255, 0.3);
-            border-top-color: #00ffff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
     </style>
 </head>
 <body data-rotate-msg="🔄 Пожалуйста, поверните устройство горизонтально / Please rotate your device to landscape">
     <canvas id="gameCanvas"></canvas>
     
-    <!-- Главное меню -->
     <div id="mainMenu">
         <div id="menuBackground"></div>
         
@@ -554,4 +521,108 @@
                 <h3 id="controlsTitle">🎮 Управление</h3>
                 <div class="controls-grid">
                     <div class="control-item">
-                       
+                        <span class="control-key" data-lang-ru="Мышь" data-lang-en="Mouse">Мышь</span>
+                        <span data-lang-ru="- Прицеливание" data-lang-en="- Aiming">- Прицеливание</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="control-key">LMB</span>
+                        <span data-lang-ru="- Выстрел" data-lang-en="- Shoot">- Выстрел</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="control-key">A / D</span>
+                        <span data-lang-ru="- Влево/Вправо" data-lang-en="- Left/Right">- Влево/Вправо</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="control-key">R</span>
+                        <span data-lang-ru="- Перезарядка" data-lang-en="- Reload">- Перезарядка</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="control-key">1 / 2 / 3</span>
+                        <span data-lang-ru="- Смена оружия" data-lang-en="- Change weapon">- Смена оружия</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="control-key">ESC</span>
+                        <span data-lang-ru="- Пауза" data-lang-en="- Pause">- Пауза</span>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="menu-button" id="playButton" onclick="window.gameController.startGame()">▶ <span data-lang-ru="ИГРАТЬ" data-lang-en="PLAY">ИГРАТЬ</span></button>
+            <button class="menu-button" id="continueButton" onclick="window.gameController.continueGame()">⏩ <span data-lang-ru="ПРОДОЛЖИТЬ" data-lang-en="CONTINUE">ПРОДОЛЖИТЬ</span></button>
+            <button class="menu-button" onclick="window.gameController.showRecords()">🏆 <span data-lang-ru="РЕКОРДЫ" data-lang-en="RECORDS">РЕКОРДЫ</span></button>
+        </div>
+    </div>
+
+    <div id="hud">
+        <div id="score" class="hud-element"><span data-lang-ru="Очки:" data-lang-en="Score:">Очки:</span> <span id="scoreValue">0</span></div>
+        <div id="level" class="hud-element"><span data-lang-ru="Уровень:" data-lang-en="Level:">Уровень:</span> <span id="levelValue">1</span></div>
+        <div id="ammo" class="hud-element"><span data-lang-ru="Патроны:" data-lang-en="Ammo:">Патроны:</span> <span id="ammoValue">10</span>/<span id="ammoMax">10</span></div>
+        <div id="weapon" class="hud-element"><span data-lang-ru="Оружие:" data-lang-en="Weapon:">Оружие:</span> <span id="weaponName">Пистолет</span></div>
+        <div id="crosshair"></div>
+    </div>
+
+    <div id="mobileControls">
+        <div class="mobile-button" id="moveLeft">◀</div>
+        <div class="mobile-button" id="moveRight">▶</div>
+        <div class="mobile-button" id="shootButton">🔫</div>
+        <div class="mobile-button" id="reloadButton">🔄</div>
+        <div class="weapon-selector">
+            <button class="weapon-btn active" data-weapon="pistol">1</button>
+            <button class="weapon-btn" data-weapon="rifle">2</button>
+            <button class="weapon-btn" data-weapon="sniper">3</button>
+        </div>
+    </div>
+
+    <div id="notification"></div>
+
+    <div id="pauseMenu">
+        <h2>⏸ <span data-lang-ru="ПАУЗА" data-lang-en="PAUSE">ПАУЗА</span></h2>
+        <button class="menu-button" onclick="window.gameController.resumeGame()">▶ <span data-lang-ru="ПРОДОЛЖИТЬ" data-lang-en="CONTINUE">ПРОДОЛЖИТЬ</span></button>
+        <button class="menu-button" onclick="window.gameController.backToMenu()">🏠 <span data-lang-ru="В МЕНЮ" data-lang-en="MAIN MENU">В МЕНЮ</span></button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="game.js"></script>
+    <script>
+        function createMenuParticles() {
+            const menuBg = document.getElementById('menuBackground');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'menu-particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 10 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                menuBg.appendChild(particle);
+            }
+        }
+        
+        let currentLang = 'ru';
+        function toggleLanguage() {
+            currentLang = currentLang === 'ru' ? 'en' : 'ru';
+            const langToggle = document.getElementById('languageToggle');
+            langToggle.textContent = currentLang === 'ru' ? '🌐 EN' : '🌐 RU';
+            
+            document.querySelectorAll('[data-lang-ru]').forEach(el => {
+                el.textContent = el.getAttribute('data-lang-' + currentLang);
+            });
+            
+            document.getElementById('gameTitle').textContent = 
+                currentLang === 'ru' ? 'ТРЕНАЖЁР СТРЕЛЬБЫ' : 'SHOOTING SIMULATOR';
+            document.getElementById('controlsTitle').textContent = 
+                currentLang === 'ru' ? '🎮 Управление' : '🎮 Controls';
+            
+            document.body.setAttribute('data-rotate-msg', 
+                currentLang === 'ru' 
+                    ? '🔄 Пожалуйста, поверните устройство горизонтально' 
+                    : '🔄 Please rotate your device to landscape'
+            );
+            
+            if (window.gameController) {
+                window.gameController.updateLanguage(currentLang);
+            }
+        }
+        
+        window.addEventListener('load', createMenuParticles);
+    </script>
+</body>
+</html>
